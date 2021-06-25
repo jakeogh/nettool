@@ -175,9 +175,10 @@ def download_file(*,
                   proxy_dict: Optional[dict] = None,
                   ):
 
+    destination_dir = Path(destination_dir)
     eprint("downloading:", url)
     if destination_dir:
-        local_filename = destination_dir + '/' + url.split('/')[-1]
+        local_filename = destination_dir /  Path(url.split('/')[-1])
     else:
         local_filename = None
 
@@ -200,7 +201,7 @@ def download_file(*,
                     if chunk:
                         fh.write(chunk)
         except FileExistsError:
-            eprint("skipping download, file exists:", local_filename)
+            eprint("skipping download, file exists:", local_filename.as_posix())
         r.close()
         return local_filename
 
