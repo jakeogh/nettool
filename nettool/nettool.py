@@ -175,9 +175,9 @@ def download_file(*,
                   proxy_dict: Optional[dict] = None,
                   ):
 
-    destination_dir = Path(destination_dir)
     eprint("downloading:", url)
     if destination_dir:
+        destination_dir = Path(destination_dir)
         local_filename = destination_dir /  Path(url.split('/')[-1])
     else:
         local_filename = None
