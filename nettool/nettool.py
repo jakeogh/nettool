@@ -168,6 +168,7 @@ def construct_proxy_dict(verbose: bool,
     return proxy_dict
 
 
+@retry_on_exception(exception=ConnectionError)
 def download_file(*,
                   url: str,
                   destination_dir: Optional[Path] = None,
