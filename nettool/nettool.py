@@ -152,6 +152,9 @@ def download_file(*,
                   destination_dir: Optional[Path] = None,
                   force: bool = False,
                   proxy_dict: Optional[dict] = None,
+                  progress: bool = False,
+                  verbose: bool = False,
+                  debug: bool = False,
                   ):
 
     eprint("downloading:", url)
@@ -173,12 +176,15 @@ def download_file(*,
 
     ic(proxy_dict)
     r = requests.get(url, stream=True, proxies=proxy_dict)
+    byte_count = 0
     if local_filename:
         try:
             with open(local_filename, 'bx') as fh:
                 for chunk in r.iter_content(chunk_size=1024*1024):
                     if chunk:
                         fh.write(chunk)
+                    if progress:
+                        eprint('bytes:', byte_count)
         except FileExistsError:
             eprint("skipping download, file exists:", local_filename.as_posix())
         r.close()
