@@ -28,6 +28,9 @@ from signal import SIGPIPE
 from signal import signal
 
 import click
+import sh
+from asserttool import eprint
+from asserttool import ic
 
 signal(SIGPIPE,SIG_DFL)
 from pathlib import Path
@@ -45,31 +48,6 @@ from asserttool import nevd
 from enumerate_input import enumerate_input
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-    from icecream import icr  # https://github.com/jakeogh/icecream
-except ImportError:
-    ic = eprint
-    icr = eprint
-
-
-# import pdb; pdb.set_trace()
-# #set_trace(term_size=(80, 24))
-# from pudb import set_trace; set_trace(paused=False)
-
-##def log_uncaught_exceptions(ex_cls, ex, tb):
-##   eprint(''.join(traceback.format_tb(tb)))
-##   eprint('{0}: {1}'.format(ex_cls, ex))
-##
-##sys.excepthook = log_uncaught_exceptions
 
 
 def get_timestamp():
@@ -235,11 +213,6 @@ def cli(ctx,
     index = 0
     for index, interface in enumerate_input(iterator=iterator,
                                             dont_decode=False,  # interfaces are ascii
-                                            null=null,
-                                            progress=False,
-                                            skip=None,
-                                            head=None,
-                                            tail=None,
                                             debug=debug,
                                             verbose=verbose,
                                             ):
