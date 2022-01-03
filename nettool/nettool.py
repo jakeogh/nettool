@@ -23,17 +23,11 @@
 import os
 import sys
 import time
+from math import inf
+from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
-
-import click
-import sh
-from asserttool import eprint
-from asserttool import ic
-
-signal(SIGPIPE,SIG_DFL)
-from pathlib import Path
 from typing import ByteString
 from typing import Generator
 from typing import Iterable
@@ -42,25 +36,26 @@ from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
+import click
 import netifaces
 import requests
+import sh
+from asserttool import eprint
+from asserttool import ic
 from asserttool import nevd
-from enumerate_input import enumerate_input
+from asserttool import tv
+from clicktool import click_add_options
+from clicktool import click_global_options
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
+from unmp import unmp
+
+signal(SIGPIPE,SIG_DFL)
 
 
 def get_timestamp():
     timestamp = str("%.22f" % time.time())
     return timestamp
-
-
-def validate_slice(slice_syntax):
-    assert isinstance(slice_syntax, str)
-    for c in slice_syntax:
-        if c not in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '[', ']', ':']:
-            raise ValueError(slice_syntax)
-    return slice_syntax
 
 
 try:
@@ -94,25 +89,23 @@ def get_name_for_windows_network_uuid(uuid):
 
 def get_ip_addresses_for_interface(*,
                                    interface: str,
-                                   verbose: bool,
-                                   debug: bool,
+                                   verbose: int,
                                    ):
     addresses = netifaces.ifaddresses(interface)
-    if debug:
+    if verbose == inf:
         ic(addresses)
     try:
         addresses = addresses[netifaces.AF_INET]
     except KeyError:
         return []
     addresses = [ip['addr'] for ip in addresses]
-    if debug:
+    if verbose == inf:
         ic(addresses)
     return addresses
 
 
 def get_mac_for_interface(interface: str,
-                          verbose: bool,
-                          debug: bool,
+                          verbose: int,
                           ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]['addr']
     if verbose:
@@ -124,21 +117,20 @@ def get_mac_for_interface(interface: str,
     return mac
 
 
-def construct_proxy_dict(verbose: bool,
-                         debug: bool,
+def construct_proxy_dict(verbose: int,
                          ):
     proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
     if verbose:
         ic(proxy_config)
     proxy_dict = {}
     for line in proxy_config:
-        if debug:
+        if verbose == inf:
             ic(line)
         scheme = line.split('=')[0].split('_')[0]
         line = line.split('=')[-1]
         line = line.strip('"')
         #scheme = line.split('://')[0]
-        if debug:
+        if verbose == inf:
             ic(scheme)
         proxy_dict[scheme] = line
         #proxy = line.split('://')[-1].split('"')[0]
@@ -153,8 +145,7 @@ def download_file(*,
                   force: bool = False,
                   proxy_dict: Optional[dict] = None,
                   progress: bool = False,
-                  verbose: bool = False,
-                  debug: bool = False,
+                  verbose: int,
                   ):
 
     eprint("downloading:", url)
@@ -198,37 +189,33 @@ def download_file(*,
 
 @click.command()
 @click.argument("interfaces", type=str, nargs=-1)
-@click.option('--verbose', is_flag=True)
-@click.option('--debug', is_flag=True)
+@click_add_options(click_global_options)
 @click.pass_context
 def cli(ctx,
         interfaces: Optional[Tuple[str, ...]],
-        verbose: bool,
-        debug: bool,
+        verbose: int,
+        verbose_inf: bool,
         ):
 
     ctx.ensure_object(dict)
-    null, end, verbose, debug = nevd(ctx=ctx,
-                                     printn=False,
-                                     ipython=False,
-                                     verbose=verbose,
-                                     debug=debug,)
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
 
-    iterator = interfaces
+    if interfaces:
+        iterator = interfaces
+    else:
+        iterator = unmp(valid_types=[str,], verbose=verbose,)
 
     index = 0
-    for index, interface in enumerate_input(iterator=iterator,
-                                            dont_decode=False,  # interfaces are ascii
-                                            debug=debug,
-                                            verbose=verbose,
-                                            ):
-
-        if verbose:  # or simulate:
+    for index, interface in enumerate(iterator):
+        if verbose:
             ic(index, interface)
 
         print(get_ip_addresses_for_interface(interface=interface,
                                              verbose=verbose,
-                                             debug=debug,))
+                                             ))
         print(get_mac_for_interface(interface=interface,
                                     verbose=verbose,
-                                    debug=debug,))
+                                    ))
