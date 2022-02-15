@@ -35,17 +35,17 @@ from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
 import click
 import netifaces
 import requests
 import sh
-from asserttool import eprint
 from asserttool import ic
-from asserttool import nevd
-from asserttool import tv
 from clicktool import click_add_options
 from clicktool import click_global_options
+from clicktool import tv
+from eprint import eprint
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
 from unmp import unmp
@@ -89,7 +89,7 @@ def get_name_for_windows_network_uuid(uuid):
 
 def get_ip_addresses_for_interface(*,
                                    interface: str,
-                                   verbose: int,
+                                   verbose: Union[bool, int, float],
                                    ):
     addresses = netifaces.ifaddresses(interface)
     if verbose == inf:
@@ -105,7 +105,7 @@ def get_ip_addresses_for_interface(*,
 
 
 def get_mac_for_interface(interface: str,
-                          verbose: int,
+                          verbose: Union[bool, int, float],
                           ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]['addr']
     if verbose:
@@ -117,7 +117,7 @@ def get_mac_for_interface(interface: str,
     return mac
 
 
-def construct_proxy_dict(verbose: int,
+def construct_proxy_dict(verbose: Union[bool, int, float],
                          ):
     proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
     if verbose:
@@ -138,6 +138,7 @@ def construct_proxy_dict(verbose: int,
     return proxy_dict
 
 
+# todo, add asc_sig options
 @retry_on_exception(exception=ConnectionError)
 def download_file(*,
                   url: str,
@@ -145,7 +146,7 @@ def download_file(*,
                   force: bool = False,
                   proxy_dict: Optional[dict] = None,
                   progress: bool = False,
-                  verbose: int,
+                  verbose: Union[bool, int, float],
                   ):
 
     eprint("downloading:", url)
@@ -193,7 +194,7 @@ def download_file(*,
 @click.pass_context
 def cli(ctx,
         interfaces: Optional[Tuple[str, ...]],
-        verbose: int,
+        verbose: Union[bool, int, float],
         verbose_inf: bool,
         ):
 
