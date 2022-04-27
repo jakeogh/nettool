@@ -66,6 +66,13 @@ except ImportError:
         assert False
 
 
+def tcp_port_in_use(port: int):
+    if not isinstance(port, int):
+        raise ValueError("port must be type int, not:", type(port), port)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("localhost", port)) == 0
+
+
 def get_network_interfaces():
     ports = netifaces.interfaces()
     skip_interfaces = ["lo", "dummy0", "teql0"]
