@@ -1,54 +1,45 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-# flake8: noqa           # flake8 has no per file settings :(
-# pylint: disable=C0111  # docstrings are always outdated and wrong
-# pylint: disable=W0511  # todo is encouraged
-# pylint: disable=C0301  # line too long
-# pylint: disable=R0902  # too many instance attributes
-# pylint: disable=C0302  # too many lines in module
-# pylint: disable=C0103  # single letter var names, func name too descriptive
-# pylint: disable=R0911  # too many return statements
-# pylint: disable=R0912  # too many branches
-# pylint: disable=R0915  # too many statements
-# pylint: disable=R0913  # too many arguments
-# pylint: disable=R1702  # too many nested blocks
-# pylint: disable=R0914  # too many local variables
-# pylint: disable=R0903  # too few public methods
-# pylint: disable=E1101  # no member for base
-# pylint: disable=W0201  # attribute defined outside __init__
-# pylint: disable=R0916  # Too many boolean expressions in if statement
-# pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
-import os
-import sys
+# pylint: disable=missing-docstring               # [C0111] docstrings are always outdated and wrong
+# pylint: disable=fixme                           # [W0511] todo is encouraged
+# pylint: disable=line-too-long                   # [C0301]
+# pylint: disable=too-many-instance-attributes    # [R0902]
+# pylint: disable=too-many-lines                  # [C0302] too many lines in module
+# pylint: disable=invalid-name                    # [C0103] single letter var names, name too descriptive
+# pylint: disable=too-many-return-statements      # [R0911]
+# pylint: disable=too-many-branches               # [R0912]
+# pylint: disable=too-many-statements             # [R0915]
+# pylint: disable=too-many-arguments              # [R0913]
+# pylint: disable=too-many-nested-blocks          # [R1702]
+# pylint: disable=too-many-locals                 # [R0914]
+# pylint: disable=too-few-public-methods          # [R0903]
+# pylint: disable=no-member                       # [E1101] no member for base
+# pylint: disable=attribute-defined-outside-init  # [W0201]
+# pylint: disable=too-many-boolean-expressions    # [R0916] in if statement
+from __future__ import annotations
+
+import socket
 import time
 from math import inf
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
-from typing import ByteString
-from typing import Generator
-from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import Sequence
 from typing import Tuple
-from typing import Union
 
 import click
 import netifaces
 import requests
-import sh
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tv
 from eprint import eprint
-from mptool import unmp
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
+from unmp import unmp
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -98,7 +89,7 @@ def get_name_for_windows_network_uuid(uuid):
 def get_ip_addresses_for_interface(
     *,
     interface: str,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
 ):
     addresses = netifaces.ifaddresses(interface)
     if verbose == inf:
@@ -115,7 +106,7 @@ def get_ip_addresses_for_interface(
 
 def get_mac_for_interface(
     interface: str,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
 ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
     if verbose:
@@ -128,7 +119,7 @@ def get_mac_for_interface(
 
 
 def construct_proxy_dict(
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
 ):
     proxy_config = read_file_bytes("/etc/portage/proxy.conf").decode("utf8").split("\n")
     if verbose:
@@ -154,11 +145,11 @@ def construct_proxy_dict(
 def download_file(
     *,
     url: str,
-    destination_dir: Optional[Path] = None,
+    destination_dir: None | Path = None,
     force: bool = False,
-    proxy_dict: Optional[dict] = None,
+    proxy_dict: None | dict = None,
     progress: bool = False,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
 ):
 
     eprint("downloading:", url)
@@ -205,8 +196,8 @@ def download_file(
 @click.pass_context
 def cli(
     ctx,
-    interfaces: Optional[Tuple[str, ...]],
-    verbose: Union[bool, int, float],
+    interfaces: None | Tuple[str, ...],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
