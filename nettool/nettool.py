@@ -199,7 +199,7 @@ def cli(
     interfaces: None | Tuple[str, ...],
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     ctx.ensure_object(dict)
