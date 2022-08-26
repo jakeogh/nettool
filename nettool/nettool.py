@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import socket
+import struct
 import time
 from collections.abc import Sequence
 from math import inf
@@ -35,16 +36,37 @@ import click
 import netifaces
 import requests
 from asserttool import ic
+from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tv
 from eprint import eprint
+from mptool import mpd_enumerate
 from mptool import output
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
 from unmp import unmp
 
 signal(SIGPIPE, SIG_DFL)
+
+
+def get_default_gateway(verbose: bool | int | float):
+    gateways = netifaces.gateways()
+    if verbose:
+        ic(gateways)
+
+    return gateways
+
+
+# https://gist.github.com/ssokolow/1059982
+def get_default_gateway_linux(verbose: bool | int | float):
+    with open("/proc/net/route") as fh:
+        for line in fh:
+            fields = line.strip().split()
+            if fields[1] != "00000000" or not int(fields[3], 16) & 2:
+                continue
+
+            return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
 
 
 def get_timestamp():
@@ -124,7 +146,11 @@ def get_mac_for_interface(
 def construct_proxy_dict(
     verbose: bool | int | float,
 ):
-    proxy_config = read_file_bytes("/etc/portage/proxy.conf").decode("utf8").split("\n")
+    proxy_config = (
+        read_file_bytes("/etc/portage/proxy.conf", verbose=verbose)
+        .decode("utf8")
+        .split("\n")
+    )
     if verbose:
         ic(proxy_config)
     proxy_dict = {}
@@ -193,12 +219,71 @@ def download_file(
     return text
 
 
-@click.command()
+@click.group(no_args_is_help=True, cls=AHGroup)
 @click_add_options(click_global_options)
 @click.pass_context
 def cli(
     ctx,
-    interfaces: None | Tuple[str, ...],
+    verbose: bool | int | float,
+    verbose_inf: bool,
+    dict_output: bool,
+) -> None:
+
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+
+@cli.command("default-gw")
+@click.argument("keys", type=str, nargs=-1)
+@click_add_options(click_global_options)
+@click.pass_context
+def _default_gw(
+    ctx,
+    keys: Sequence[str],
+    verbose: bool | int | float,
+    verbose_inf: bool,
+    dict_output: bool,
+):
+
+    ctx.ensure_object(dict)
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+    iterator: Sequence[dict | str] = unmp(
+        valid_types=[
+            dict,
+            str,
+        ],
+        verbose=verbose,
+    )
+
+    index = 0
+    for index, _mpobject, multi_key in mpd_enumerate(iterator, verbose=verbose):
+        # this check could be moved to output() but then we cant exit on error now
+        if multi_key:
+            assert len(keys) > 0
+
+        default_gw = get_default_gateway(verbose=verbose)
+        output(
+            default_gw,
+            reason=_mpobject,
+            tty=tty,
+            dict_output=dict_output,
+            verbose=verbose,
+        )
+
+
+@cli.command("info")
+@click_add_options(click_global_options)
+@click.pass_context
+def _info(
+    ctx,
     verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
