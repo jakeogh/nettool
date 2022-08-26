@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-
+# pylint: disable=useless-suppression             # [I0021]
 # pylint: disable=missing-docstring               # [C0111] docstrings are always outdated and wrong
 # pylint: disable=fixme                           # [W0511] todo is encouraged
 # pylint: disable=line-too-long                   # [C0301]
@@ -18,10 +18,12 @@
 # pylint: disable=no-member                       # [E1101] no member for base
 # pylint: disable=attribute-defined-outside-init  # [W0201]
 # pylint: disable=too-many-boolean-expressions    # [R0916] in if statement
+
 from __future__ import annotations
 
 import socket
 import time
+from collections.abc import Sequence
 from math import inf
 from pathlib import Path
 from signal import SIG_DFL
@@ -37,6 +39,7 @@ from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tv
 from eprint import eprint
+from mptool import output
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
 from unmp import unmp
@@ -191,7 +194,6 @@ def download_file(
 
 
 @click.command()
-@click.argument("interfaces", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
 def cli(
@@ -209,30 +211,44 @@ def cli(
         verbose_inf=verbose_inf,
     )
 
-    if interfaces:
-        iterator = interfaces
-    else:
-        iterator = unmp(
-            valid_types=[
-                str,
-            ],
-            verbose=verbose,
-        )
+    iterator: Sequence[dict | str] = unmp(
+        valid_types=[
+            dict,
+            str,
+        ],
+        verbose=verbose,
+    )
 
     index = 0
-    for index, interface in enumerate(iterator):
+    for index, _mpobject in enumerate(iterator):
         if verbose:
-            ic(index, interface)
+            ic(index, _mpobject)
+        interface = None
+        if isinstance(_mpobject, dict):
+            for _k, _v in _mpobject.items():
+                interface = _v
+                break
+        else:
+            interface = _mpobject
+            _k = interface
 
-        print(
+        output(
             get_ip_addresses_for_interface(
                 interface=interface,
                 verbose=verbose,
-            )
+            ),
+            reason=_k,
+            tty=tty,
+            dict_output=dict_output,
+            verbose=verbose,
         )
-        print(
+        output(
             get_mac_for_interface(
                 interface=interface,
                 verbose=verbose,
-            )
+            ),
+            reason=_k,
+            tty=tty,
+            dict_output=dict_output,
+            verbose=verbose,
         )
