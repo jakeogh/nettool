@@ -74,9 +74,15 @@ def get_timestamp():
     return timestamp
 
 
-try:
-    from scapy.all import get_windows_if_list
-except ImportError:
+if not Path("/bin/ip").exists():
+    try:
+        from scapy.all import get_windows_if_list
+    except ImportError:
+
+        def get_windows_if_list():
+            assert False
+
+else:
 
     def get_windows_if_list():
         assert False
