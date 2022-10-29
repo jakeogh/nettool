@@ -31,7 +31,6 @@ from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
-from typing import Tuple
 
 import click
 import netifaces
