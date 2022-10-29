@@ -21,6 +21,7 @@
 
 from __future__ import annotations
 
+import random
 import socket
 import struct
 import time
@@ -48,6 +49,27 @@ from retry_on_exception import retry_on_exception
 from unmp import unmp
 
 signal(SIGPIPE, SIG_DFL)
+
+
+# https://public-dns.info/nameservers.txt
+def get_public_dns_server():
+    servers = [
+        "8.8.8.8",  # goog
+        "8.8.4.4",
+        "1.1.1.1",  # cloudf
+    ]
+    return random.choice(servers)
+
+
+# https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
+def internet_available():
+    host = get_public_dns_server()
+    try:
+        socket.setdefaulttimeout(3)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, 53))
+        return True
+    except socket.error:
+        return False
 
 
 def get_default_gateway(verbose: bool | int | float):
