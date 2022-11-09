@@ -81,7 +81,7 @@ def get_default_gateway(verbose: bool | int | float):
 
 # https://gist.github.com/ssokolow/1059982
 def get_default_gateway_linux(verbose: bool | int | float):
-    with open("/proc/net/route") as fh:
+    with open("/proc/net/route", encoding="utf8") as fh:
         for line in fh:
             fields = line.strip().split()
             if fields[1] != "00000000" or not int(fields[3], 16) & 2:
@@ -215,6 +215,7 @@ def download_file(
     else:
         local_filename = None
 
+    eprint(f"{destination_dir=}")
     # if force:
     #    os.unlink(local_filename)
 
@@ -226,7 +227,7 @@ def download_file(
     #    proxy_dict["https"] = proxy
 
     ic(proxy_dict)
-    r = requests.get(url, stream=True, proxies=proxy_dict)
+    r = requests.get(url, stream=True, proxies=proxy_dict, timeout=60)
     byte_count = 0
     if local_filename:
         try:
