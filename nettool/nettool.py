@@ -110,7 +110,7 @@ else:
 
 
 def tcp_port_in_use(port: int):
-    eprint(port)
+    # eprint(port)
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
