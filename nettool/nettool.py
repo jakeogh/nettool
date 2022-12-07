@@ -109,7 +109,7 @@ else:
         assert False
 
 
-def tcp_port_in_use(port: int):
+def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # eprint(port)
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
@@ -366,3 +366,25 @@ def _info(
             dict_output=dict_output,
             verbose=verbose,
         )
+
+
+@cli.command("tcp-port-in-use")
+@click.argument("port", type=int, nargs=1)
+@click_add_options(click_global_options)
+@click.pass_context
+def _tcp_port_in_use(
+    ctx,
+    port: int,
+    verbose: bool | int | float,
+    verbose_inf: bool,
+    dict_output: bool,
+):
+
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+    _result = tcp_port_in_use(port, verbose=verbose)
+    ic(_result)
