@@ -113,7 +113,7 @@ else:
 def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # eprint(port)
     ic(port)
-    os.system(f"netstat -anlp | grep {port}")
+    os.system(f"netstat -anl | grep tcp | grep {port}")
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
