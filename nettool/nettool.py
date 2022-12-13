@@ -21,6 +21,7 @@
 
 from __future__ import annotations
 
+import os
 import random
 import socket
 import struct
@@ -111,6 +112,7 @@ else:
 
 def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # eprint(port)
+    os.system(f"netstat -anlp | grep {port}")
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
