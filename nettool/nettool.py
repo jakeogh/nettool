@@ -112,11 +112,14 @@ else:
 
 def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # eprint(port)
+    ic(port)
     os.system(f"netstat -anlp | grep {port}")
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(("localhost", port)) == 0
+        _result = s.connect_ex(("localhost", port)) == 0
+        ic(port, _result)
+        return _result
 
 
 def get_network_interfaces():
