@@ -36,6 +36,7 @@ from signal import signal
 import click
 import netifaces
 import requests
+import sh
 from asserttool import ic
 from click_auto_help import AHGroup
 from clicktool import click_add_options
@@ -113,7 +114,12 @@ else:
 def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # eprint(port)
     # ic(port)
-    os.system(f"netstat -anl | grep tcp | grep {port}")
+    for line in sh.netstat("-a", "-n", "-l"):
+        if line.starswith("tcp"):
+            ic(line)
+            if f":{port}" in line:
+                return True
+
     if not isinstance(port, int):
         raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
