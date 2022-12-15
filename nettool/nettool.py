@@ -116,8 +116,8 @@ def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
     # ic(port)
     for line in sh.netstat("-a", "-n", "-l"):
         if line.startswith("tcp"):
-            ic(line)
             if f":{port}" in line:
+                ic(line)
                 return True
 
     if not isinstance(port, int):
