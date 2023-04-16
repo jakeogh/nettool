@@ -111,7 +111,11 @@ else:
         assert False
 
 
-def tcp_port_in_use(port: int, *, verbose: bool | int | float = False):
+def tcp_port_in_use(
+    port: int,
+    *,
+    verbose: bool | int | float = False,
+):
     # eprint(port)
     # ic(port)
     for line in sh.netstat("-a", "-n", "-l"):
@@ -153,7 +157,7 @@ def get_name_for_windows_network_uuid(uuid):
 def get_ip_addresses_for_interface(
     *,
     interface: str,
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
 ):
     addresses = netifaces.ifaddresses(interface)
     if verbose == inf:
@@ -170,7 +174,7 @@ def get_ip_addresses_for_interface(
 
 def get_mac_for_interface(
     interface: str,
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
 ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
     if verbose:
@@ -183,7 +187,7 @@ def get_mac_for_interface(
 
 
 def construct_proxy_dict(
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
 ):
     proxy_config = (
         read_file_bytes("/etc/portage/proxy.conf", verbose=verbose)
@@ -217,9 +221,8 @@ def download_file(
     force: bool = False,
     proxy_dict: None | dict = None,
     progress: bool = False,
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
 ):
-
     eprint("downloading:", url)
     if destination_dir:
         destination_dir = Path(destination_dir)
@@ -264,11 +267,10 @@ def download_file(
 @click.pass_context
 def cli(
     ctx,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ) -> None:
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
@@ -282,12 +284,11 @@ def cli(
 @click.pass_context
 def _default_gw(
     ctx,
-    keys: Sequence[str],
-    verbose: bool | int | float,
+    keys: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     ctx.ensure_object(dict)
     tty, verbose = tv(
         ctx=ctx,
@@ -324,11 +325,10 @@ def _default_gw(
 @click.pass_context
 def _info(
     ctx,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     ctx.ensure_object(dict)
     tty, verbose = tv(
         ctx=ctx,
@@ -386,11 +386,10 @@ def _info(
 def _tcp_port_in_use(
     ctx,
     port: int,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
