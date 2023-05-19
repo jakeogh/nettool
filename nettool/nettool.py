@@ -73,16 +73,15 @@ def internet_available():
         return False
 
 
-def get_default_gateway(verbose: bool | int | float):
+def get_default_gateway(verbose: bool | int | float = False):
     gateways = netifaces.gateways()
-    if verbose:
-        ic(gateways)
+    ic(gateways)
 
     return gateways
 
 
 # https://gist.github.com/ssokolow/1059982
-def get_default_gateway_linux(verbose: bool | int | float):
+def get_default_gateway_linux(verbose: bool | int | float = False):
     with open("/proc/net/route", encoding="utf8") as fh:
         for line in fh:
             fields = line.strip().split()
@@ -160,15 +159,13 @@ def get_ip_addresses_for_interface(
     verbose: bool | int | float = False,
 ):
     addresses = netifaces.ifaddresses(interface)
-    if verbose == inf:
-        ic(addresses)
+    ic(addresses)
     try:
         addresses = addresses[netifaces.AF_INET]
     except KeyError:
         return []
     addresses = [ip["addr"] for ip in addresses]
-    if verbose == inf:
-        ic(addresses)
+    ic(addresses)
     return addresses
 
 
@@ -177,12 +174,10 @@ def get_mac_for_interface(
     verbose: bool | int | float = False,
 ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
-    if verbose:
-        ic(mac)
+    ic(mac)
     mac = "".join(mac.split(":"))
     mac = bytes.fromhex(mac)
-    if verbose:
-        ic(mac)
+    ic(mac)
     return mac
 
 
@@ -194,18 +189,15 @@ def construct_proxy_dict(
         .decode("utf8")
         .split("\n")
     )
-    if verbose:
-        ic(proxy_config)
+    ic(proxy_config)
     proxy_dict = {}
     for line in proxy_config:
-        if verbose == inf:
-            ic(line)
+        ic(line)
         scheme = line.split("=")[0].split("_")[0]
         line = line.split("=")[-1]
         line = line.strip('"')
         # scheme = line.split('://')[0]
-        if verbose == inf:
-            ic(scheme)
+        ic(scheme)
         proxy_dict[scheme] = line
         # proxy = line.split('://')[-1].split('"')[0]
     ic(proxy_dict)
@@ -310,13 +302,12 @@ def _default_gw(
         if multi_key:
             assert len(keys) > 0
 
-        default_gw = get_default_gateway(verbose=verbose)
+        default_gw = get_default_gateway()
         output(
             default_gw,
             reason=_mpobject,
             tty=tty,
             dict_output=dict_output,
-            verbose=verbose,
         )
 
 
@@ -346,8 +337,7 @@ def _info(
 
     index = 0
     for index, _mpobject in enumerate(iterator):
-        if verbose:
-            ic(index, _mpobject)
+        ic(index, _mpobject)
         interface = None
         if isinstance(_mpobject, dict):
             for _k, _v in _mpobject.items():
@@ -360,22 +350,18 @@ def _info(
         output(
             get_ip_addresses_for_interface(
                 interface=interface,
-                verbose=verbose,
             ),
             reason=_k,
             tty=tty,
             dict_output=dict_output,
-            verbose=verbose,
         )
         output(
             get_mac_for_interface(
                 interface=interface,
-                verbose=verbose,
             ),
             reason=_k,
             tty=tty,
             dict_output=dict_output,
-            verbose=verbose,
         )
 
 
@@ -396,5 +382,5 @@ def _tcp_port_in_use(
         verbose_inf=verbose_inf,
     )
 
-    _result = tcp_port_in_use(port, verbose=verbose)
+    _result = tcp_port_in_use(port)
     ic(_result)
