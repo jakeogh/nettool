@@ -21,13 +21,11 @@
 
 from __future__ import annotations
 
-import os
 import random
 import socket
 import struct
 import time
 from collections.abc import Sequence
-from math import inf
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
@@ -73,7 +71,9 @@ def internet_available():
         return False
 
 
-def get_default_gateway(verbose: bool | int | float = False):
+def get_default_gateway(
+    verbose: bool | int | float = False,
+):
     gateways = netifaces.gateways()
     ic(gateways)
 
@@ -81,7 +81,9 @@ def get_default_gateway(verbose: bool | int | float = False):
 
 
 # https://gist.github.com/ssokolow/1059982
-def get_default_gateway_linux(verbose: bool | int | float = False):
+def get_default_gateway_linux(
+    verbose: bool | int | float = False,
+):
     with open("/proc/net/route", encoding="utf8") as fh:
         for line in fh:
             fields = line.strip().split()
