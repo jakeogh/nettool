@@ -182,7 +182,7 @@ def _tcp_port_in_use(
 
 
 @cli.command("add-alias")
-@click.argument("ip_with_subnet", type=int, nargs=1)
+@click.argument("ip_with_subnet", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
 def _add_alias(
