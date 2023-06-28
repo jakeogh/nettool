@@ -25,27 +25,18 @@ import random
 import socket
 import struct
 import time
-from collections.abc import Sequence
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
-import click
 import netifaces
 import requests
 import sh
 from asserttool import ic
-from click_auto_help import AHGroup
-from clicktool import click_add_options
-from clicktool import click_global_options
-from clicktool import tv
 from eprint import eprint
-from mptool import mpd_enumerate
-from mptool import output
 from pathtool import read_file_bytes
 from retry_on_exception import retry_on_exception
-from unmp import unmp
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -255,134 +246,3 @@ def download_file(
     r.close()
     return text
 
-
-@click.group(no_args_is_help=True, cls=AHGroup)
-@click_add_options(click_global_options)
-@click.pass_context
-def cli(
-    ctx,
-    verbose_inf: bool,
-    dict_output: bool,
-    verbose: bool | int | float = False,
-) -> None:
-    tty, verbose = tv(
-        ctx=ctx,
-        verbose=verbose,
-        verbose_inf=verbose_inf,
-    )
-
-
-@cli.command("default-gw")
-@click.argument("keys", type=str, nargs=-1)
-@click_add_options(click_global_options)
-@click.pass_context
-def _default_gw(
-    ctx,
-    keys: tuple[str, ...],
-    verbose_inf: bool,
-    dict_output: bool,
-    verbose: bool | int | float = False,
-):
-    ctx.ensure_object(dict)
-    tty, verbose = tv(
-        ctx=ctx,
-        verbose=verbose,
-        verbose_inf=verbose_inf,
-    )
-
-    iterator: Sequence[dict | str] = unmp(
-        valid_types=[
-            dict,
-            str,
-        ],
-        verbose=verbose,
-    )
-
-    index = 0
-    for index, _mpobject, multi_key in mpd_enumerate(iterator, verbose=verbose):
-        # this check could be moved to output() but then we cant exit on error now
-        if multi_key:
-            assert len(keys) > 0
-
-        default_gw = get_default_gateway()
-        output(
-            default_gw,
-            reason=_mpobject,
-            tty=tty,
-            dict_output=dict_output,
-        )
-
-
-@cli.command("info")
-@click_add_options(click_global_options)
-@click.pass_context
-def _info(
-    ctx,
-    verbose_inf: bool,
-    dict_output: bool,
-    verbose: bool | int | float = False,
-):
-    ctx.ensure_object(dict)
-    tty, verbose = tv(
-        ctx=ctx,
-        verbose=verbose,
-        verbose_inf=verbose_inf,
-    )
-
-    iterator: Sequence[dict | str] = unmp(
-        valid_types=[
-            dict,
-            str,
-        ],
-        verbose=verbose,
-    )
-
-    index = 0
-    for index, _mpobject in enumerate(iterator):
-        ic(index, _mpobject)
-        interface = None
-        if isinstance(_mpobject, dict):
-            for _k, _v in _mpobject.items():
-                interface = _v
-                break
-        else:
-            interface = _mpobject
-            _k = interface
-
-        output(
-            get_ip_addresses_for_interface(
-                interface=interface,
-            ),
-            reason=_k,
-            tty=tty,
-            dict_output=dict_output,
-        )
-        output(
-            get_mac_for_interface(
-                interface=interface,
-            ),
-            reason=_k,
-            tty=tty,
-            dict_output=dict_output,
-        )
-
-
-@cli.command("tcp-port-in-use")
-@click.argument("port", type=int, nargs=1)
-@click_add_options(click_global_options)
-@click.pass_context
-def _tcp_port_in_use(
-    ctx,
-    port: int,
-    verbose_inf: bool,
-    dict_output: bool,
-    verbose: bool | int | float = False,
-):
-    tty, verbose = tv(
-        ctx=ctx,
-        verbose=verbose,
-        verbose_inf=verbose_inf,
-    )
-
-    _result = tcp_port_in_use(port)
-    ic(_result)

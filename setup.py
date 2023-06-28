@@ -25,7 +25,7 @@ config = {
     "install_requires": dependencies,
     "entry_points": {
         "console_scripts": [
-            "nettool=nettool.nettool:cli",
+            "nettool=nettool.cli:cli",
         ],
     },
 }
