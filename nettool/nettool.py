@@ -177,11 +177,7 @@ def get_mac_for_interface(
 def construct_proxy_dict(
     verbose: bool | int | float = False,
 ):
-    proxy_config = (
-        read_file_bytes("/etc/portage/proxy.conf", verbose=verbose)
-        .decode("utf8")
-        .split("\n")
-    )
+    proxy_config = read_file_bytes("/etc/portage/proxy.conf").decode("utf8").split("\n")
     ic(proxy_config)
     proxy_dict = {}
     for line in proxy_config:
@@ -245,4 +241,3 @@ def download_file(
     text = r.text
     r.close()
     return text
-
