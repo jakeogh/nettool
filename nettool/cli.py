@@ -54,7 +54,7 @@ def cli(
     ctx,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ) -> None:
     tty, verbose = tv(
         ctx=ctx,
@@ -74,7 +74,7 @@ def _default_gw(
     keys: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     ctx.ensure_object(dict)
     tty, verbose = tv(
@@ -113,7 +113,7 @@ def _info(
     ctx,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     ctx.ensure_object(dict)
     tty, verbose = tv(
@@ -169,7 +169,7 @@ def _tcp_port_in_use(
     port: int,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     tty, verbose = tv(
         ctx=ctx,
@@ -190,7 +190,7 @@ def _add_alias(
     ip_with_subnet: str,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     tty, verbose = tv(
         ctx=ctx,
