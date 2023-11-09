@@ -32,8 +32,8 @@ from asserttool import ic
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tv
-from mptool import mpd_enumerate
+from clicktool import tvicgvd
+from globalverbose import gvd
 from mptool import output
 from unmp import unmp
 
@@ -56,10 +56,12 @@ def cli(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
     if not verbose:
         ic.disable()
@@ -77,10 +79,12 @@ def _default_gw(
     verbose: bool = False,
 ):
     ctx.ensure_object(dict)
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
 
     iterator: Sequence[dict | str] = unmp(
@@ -92,10 +96,8 @@ def _default_gw(
     )
 
     index = 0
-    for index, _mpobject, multi_key in mpd_enumerate(iterator, verbose=verbose):
+    for index, _mpobject in enumerate(iterator):
         # this check could be moved to output() but then we cant exit on error now
-        if multi_key:
-            assert len(keys) > 0
 
         default_gw = get_default_gateway()
         output(
@@ -116,10 +118,12 @@ def _info(
     verbose: bool = False,
 ):
     ctx.ensure_object(dict)
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
 
     iterator: Sequence[dict | str] = unmp(
@@ -133,7 +137,7 @@ def _info(
     index = 0
     for index, _mpobject in enumerate(iterator):
         ic(index, _mpobject)
-        interface = None
+        interface: str = ""
         if isinstance(_mpobject, dict):
             for _k, _v in _mpobject.items():
                 interface = _v
@@ -171,10 +175,12 @@ def _tcp_port_in_use(
     dict_output: bool,
     verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
 
     _result = tcp_port_in_use(port)
@@ -192,11 +198,36 @@ def _add_alias(
     dict_output: bool,
     verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
     assert "/" in ip_with_subnet
 
     sh.ip("address", "add", ip_with_subnet, "dev", "eth0")
+
+
+@cli.command("delete-alias")
+@click.argument("ip_with_subnet", type=str, nargs=1)
+@click_add_options(click_global_options)
+@click.pass_context
+def _delete_alias(
+    ctx,
+    ip_with_subnet: str,
+    verbose_inf: bool,
+    dict_output: bool,
+    verbose: bool = False,
+):
+    tty, verbose = tvicgvd(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
+    )
+    assert "/" in ip_with_subnet
+
+    sh.ip("address", "del", ip_with_subnet, "dev", "eth0")

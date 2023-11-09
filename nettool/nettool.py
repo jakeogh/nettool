@@ -35,7 +35,6 @@ import sh
 from asserttool import ic
 from eprint import eprint
 from retry_on_exception import retry_on_exception
-from timestamptool import get_timestamp
 
 signal(SIGPIPE, SIG_DFL)
 
