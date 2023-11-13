@@ -43,6 +43,16 @@ def get_hostname() -> str:
     return socket.gethostname()
 
 
+def add_alias(ip_with_subnet: str, device: str = "eth0"):
+    assert "/" in ip_with_subnet
+    sh.ip("address", "add", ip_with_subnet, "dev", device)
+
+
+def delete_alias(ip_with_subnet: str, device: str = "eth0"):
+    assert "/" in ip_with_subnet
+    sh.ip("address", "del", ip_with_subnet, "dev", device)
+
+
 # https://public-dns.info/nameservers.txt
 def get_public_dns_server():
     servers = [

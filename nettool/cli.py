@@ -37,6 +37,8 @@ from globalverbose import gvd
 from mptool import output
 from unmp import unmp
 
+from nettool import add_alias
+from nettool import delete_alias
 from nettool import get_default_gateway
 from nettool import get_ip_addresses_for_interface
 from nettool import get_mac_for_interface
@@ -187,13 +189,25 @@ def _tcp_port_in_use(
     ic(_result)
 
 
+# def add_alias(ip_with_subnet: str, device: str = "eth0"):
+#    assert "/" in ip_with_subnet
+#    sh.ip("address", "add", ip_with_subnet, "dev", device)
+#
+#
+# def delete_alias(ip_with_subnet: str, device: str = "eth0"):
+#    assert "/" in ip_with_subnet
+#    sh.ip("address", "del", ip_with_subnet, "dev", device)
+
+
 @cli.command("add-alias")
 @click.argument("ip_with_subnet", type=str, nargs=1)
+@click.argument("device", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
 def _add_alias(
     ctx,
     ip_with_subnet: str,
+    device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
@@ -205,18 +219,18 @@ def _add_alias(
         ic=ic,
         gvd=gvd,
     )
-    assert "/" in ip_with_subnet
-
-    sh.ip("address", "add", ip_with_subnet, "dev", "eth0")
+    add_alias(ip_with_subnet=ip_with_subnet, device=device)
 
 
 @cli.command("delete-alias")
 @click.argument("ip_with_subnet", type=str, nargs=1)
+@click.argument("device", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
 def _delete_alias(
     ctx,
     ip_with_subnet: str,
+    device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
@@ -228,6 +242,4 @@ def _delete_alias(
         ic=ic,
         gvd=gvd,
     )
-    assert "/" in ip_with_subnet
-
-    sh.ip("address", "del", ip_with_subnet, "dev", "eth0")
+    delete_alias(ip_with_subnet=ip_with_subnet, device=device)

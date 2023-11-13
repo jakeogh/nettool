@@ -1,3 +1,5 @@
+from .nettool import add_alias
+from .nettool import delete_alias
 from .nettool import download_file
 from .nettool import get_default_gateway
 from .nettool import get_hostname
