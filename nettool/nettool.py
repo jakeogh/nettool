@@ -39,6 +39,10 @@ from retry_on_exception import retry_on_exception
 signal(SIGPIPE, SIG_DFL)
 
 
+def get_hostname() -> str:
+    return socket.gethostname()
+
+
 # https://public-dns.info/nameservers.txt
 def get_public_dns_server():
     servers = [
