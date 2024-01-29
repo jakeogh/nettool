@@ -40,6 +40,10 @@ from retry_on_exception import retry_on_exception
 signal(SIGPIPE, SIG_DFL)
 
 
+class AliasExistsError(ValueError):
+    pass
+
+
 def get_hostname() -> str:
     return socket.gethostname()
 
@@ -54,6 +58,9 @@ def add_alias(ip_with_subnet: str, device: str = "eth0"):
         icp(e)
         icp(e.args)
         icp(result)
+        if hasattr(e, "args"):
+            if "RTNETLINK answers: File exists" in result.args[0]:
+                raise AliasExistsError(str(ip_command))
         raise e
 
 
