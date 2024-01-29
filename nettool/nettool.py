@@ -59,7 +59,7 @@ def add_alias(ip_with_subnet: str, device: str = "eth0"):
         icp(e.args)
         icp(result)
         if hasattr(e, "args"):
-            if "RTNETLINK answers: File exists" in result.args[0]:
+            if "RTNETLINK answers: File exists" in e.args[0]:
                 raise AliasExistsError(str(ip_command))
         raise e
 
