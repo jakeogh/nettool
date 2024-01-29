@@ -51,6 +51,8 @@ def add_alias(ip_with_subnet: str, device: str = "eth0"):
     try:
         result = ip_command("address", "add", ip_with_subnet, "dev", device)
     except sh.ErrorReturnCode_2 as e:
+        icp(e)
+        icp(e.args)
         icp(result)
         raise e
 
