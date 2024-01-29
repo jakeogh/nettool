@@ -33,6 +33,7 @@ import netifaces
 import requests
 import sh
 from asserttool import ic
+from asserttool import icp
 from eprint import eprint
 from retry_on_exception import retry_on_exception
 
@@ -45,7 +46,13 @@ def get_hostname() -> str:
 
 def add_alias(ip_with_subnet: str, device: str = "eth0"):
     assert "/" in ip_with_subnet
-    sh.ip("address", "add", ip_with_subnet, "dev", device)
+    ip_command = sh.Command("ip")
+    result = None
+    try:
+        result = ip_command("address", "add", ip_with_subnet, "dev", device)
+    except sh.ErrorReturnCode_2 as e:
+        icp(result)
+        raise e
 
 
 def delete_alias(ip_with_subnet: str, device: str = "eth0"):
