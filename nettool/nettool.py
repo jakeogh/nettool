@@ -61,6 +61,8 @@ def add_alias(ip_with_subnet: str, device: str = "eth0"):
         if hasattr(e, "args"):
             if "RTNETLINK answers: File exists" in e.args[0]:
                 raise AliasExistsError(e.args[0])
+            if "Error: ipv4: Address already assigned." in e.args[0]:
+                raise AliasExistsError(e.args[0])
         raise e
 
 
