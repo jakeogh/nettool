@@ -42,6 +42,7 @@ from nettool import delete_alias
 from nettool import get_default_gateway
 from nettool import get_ip_addresses_for_interface
 from nettool import get_mac_for_interface
+from nettool import internet_available
 from nettool import tcp_port_in_use
 
 signal(SIGPIPE, SIG_DFL)
@@ -186,6 +187,27 @@ def _tcp_port_in_use(
     )
 
     _result = tcp_port_in_use(port)
+    ic(_result)
+
+
+@cli.command("internet-available")
+@click_add_options(click_global_options)
+@click.pass_context
+def _internet_available(
+    ctx,
+    verbose_inf: bool,
+    dict_output: bool,
+    verbose: bool = False,
+):
+    tty, verbose = tvicgvd(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
+    )
+
+    _result = internet_available()
     ic(_result)
 
 
