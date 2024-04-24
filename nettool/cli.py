@@ -29,6 +29,7 @@ from signal import signal
 import click
 import sh
 from asserttool import ic
+from asserttool import icp
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
@@ -187,7 +188,7 @@ def _tcp_port_in_use(
     )
 
     _result = tcp_port_in_use(port)
-    ic(_result)
+    icp(_result)
 
 
 @cli.command("internet-available")
@@ -208,7 +209,7 @@ def _internet_available(
     )
 
     _result = internet_available()
-    ic(_result)
+    icp(_result)
 
 
 # def add_alias(ip_with_subnet: str, device: str = "eth0"):
