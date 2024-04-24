@@ -92,9 +92,7 @@ def internet_available():
         return False
 
 
-def get_default_gateway(
-    verbose: bool = False,
-):
+def get_default_gateway():
     gateways = netifaces.gateways()
     ic(gateways)
 
@@ -102,9 +100,7 @@ def get_default_gateway(
 
 
 # https://gist.github.com/ssokolow/1059982
-def get_default_gateway_linux(
-    verbose: bool = False,
-):
+def get_default_gateway_linux():
     with open("/proc/net/route", encoding="utf8") as fh:
         for line in fh:
             fields = line.strip().split()
@@ -130,8 +126,6 @@ else:
 
 def tcp_port_in_use(
     port: int,
-    *,
-    verbose: bool = False,
 ):
     # eprint(port)
     # ic(port)
@@ -172,9 +166,7 @@ def get_name_for_windows_network_uuid(uuid):
 
 
 def get_ip_addresses_for_interface(
-    *,
     interface: str,
-    verbose: bool = False,
 ):
     addresses = netifaces.ifaddresses(interface)
     ic(addresses)
@@ -189,7 +181,6 @@ def get_ip_addresses_for_interface(
 
 def get_mac_for_interface(
     interface: str,
-    verbose: bool = False,
 ):
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
     ic(mac)
@@ -208,7 +199,6 @@ def download_file(
     force: bool = False,
     proxy_dict: None | dict = None,
     progress: bool = False,
-    verbose: bool = False,
 ):
     eprint("downloading:", url)
     if destination_dir:
