@@ -48,7 +48,7 @@ def get_hostname() -> str:
     return socket.gethostname()
 
 
-def add_alias(ip_with_subnet: str, device: str = "eth0"):
+def alias_add(*, ip_with_subnet: str, device: str = "eth0"):
     assert "/" in ip_with_subnet
     ip_command = sh.Command("ip")
     result = None
@@ -66,7 +66,7 @@ def add_alias(ip_with_subnet: str, device: str = "eth0"):
         raise e
 
 
-def delete_alias(ip_with_subnet: str, device: str = "eth0"):
+def alias_remove(*, ip_with_subnet: str, device: str = "eth0"):
     assert "/" in ip_with_subnet
     sh.ip("address", "del", ip_with_subnet, "dev", device)
 

@@ -4,8 +4,8 @@ isort:skip_file
 """
 
 from .nettool import AliasExistsError as AliasExistsError
-from .nettool import add_alias as add_alias
-from .nettool import delete_alias as delete_alias
+from .nettool import alias_add as alias_add
+from .nettool import alias_remove as alias_remove
 from .nettool import download_file as download_file
 from .nettool import get_default_gateway as get_default_gateway
 from .nettool import get_hostname as get_hostname
