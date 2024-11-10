@@ -38,8 +38,8 @@ from globalverbose import gvd
 from mptool import output
 from unmp import unmp
 
-from nettool import add_alias
-from nettool import delete_alias
+from nettool import alias_add
+from nettool import alias_remove
 from nettool import get_default_gateway
 from nettool import get_ip_addresses_for_interface
 from nettool import get_mac_for_interface
@@ -96,7 +96,6 @@ def _default_gw(
             dict,
             str,
         ],
-        verbose=verbose,
     )
 
     index = 0
@@ -135,7 +134,6 @@ def _info(
             dict,
             str,
         ],
-        verbose=verbose,
     )
 
     index = 0
@@ -212,12 +210,12 @@ def _internet_available(
     icp(_result)
 
 
-# def add_alias(ip_with_subnet: str, device: str = "eth0"):
+# def alias_add(ip_with_subnet: str, device: str = "eth0"):
 #    assert "/" in ip_with_subnet
 #    sh.ip("address", "add", ip_with_subnet, "dev", device)
 #
 #
-# def delete_alias(ip_with_subnet: str, device: str = "eth0"):
+# def alias_remove(ip_with_subnet: str, device: str = "eth0"):
 #    assert "/" in ip_with_subnet
 #    sh.ip("address", "del", ip_with_subnet, "dev", device)
 
@@ -227,7 +225,7 @@ def _internet_available(
 @click.argument("device", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
-def _add_alias(
+def _alias_add(
     ctx,
     ip_with_subnet: str,
     device: str,
@@ -242,7 +240,7 @@ def _add_alias(
         ic=ic,
         gvd=gvd,
     )
-    add_alias(ip_with_subnet=ip_with_subnet, device=device)
+    alias_add(ip_with_subnet=ip_with_subnet, device=device)
 
 
 @cli.command("delete-alias")
@@ -250,7 +248,7 @@ def _add_alias(
 @click.argument("device", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
-def _delete_alias(
+def _alias_remove(
     ctx,
     ip_with_subnet: str,
     device: str,
@@ -265,4 +263,4 @@ def _delete_alias(
         ic=ic,
         gvd=gvd,
     )
-    delete_alias(ip_with_subnet=ip_with_subnet, device=device)
+    alias_remove(ip_with_subnet=ip_with_subnet, device=device)
