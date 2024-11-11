@@ -283,3 +283,19 @@ def download_file(
     text = r.text
     r.close()
     return text
+
+
+# def get_udp_packet(
+#    *,
+#    client_ip_address: str,
+#    destination_port: str,
+# ):
+#    ic(client_ip_address, destination_port)
+#
+#    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
+#    sock.bind((client_ip_address, destination_port))
+#
+#    # while True:
+#    data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
+#    print("received message: %s" % data)
+#    return data
