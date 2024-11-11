@@ -13,3 +13,4 @@ from .nettool import get_ip_addresses_for_interface as get_ip_addresses_for_inte
 from .nettool import get_mac_for_interface as get_mac_for_interface
 from .nettool import internet_available as internet_available
 from .nettool import tcp_port_in_use as tcp_port_in_use
+from .nettool import get_network_ports as get_network_ports

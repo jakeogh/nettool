@@ -35,6 +35,7 @@ import sh
 from asserttool import ic
 from asserttool import icp
 from eprint import eprint
+from globalverbose import gvd
 from retry_on_exception import retry_on_exception
 
 signal(SIGPIPE, SIG_DFL)
@@ -42,6 +43,51 @@ signal(SIGPIPE, SIG_DFL)
 
 class AliasExistsError(ValueError):
     pass
+
+
+def generate_network_port_help():
+    help_text = "Available network ports: "
+    ports = get_network_ports()
+    for port in ports:
+        help_text += "\b\n" + str(port)
+
+    help_text.replace("\n\n", "\n")
+    return help_text
+
+
+def get_network_ports():
+    ports = netifaces.interfaces()
+    skip_interfaces = ["lo", "dummy0", "teql0"]
+    for interface in skip_interfaces:
+        try:
+            ports.remove(interface)
+        except ValueError:
+            pass
+    return ports
+
+    # def get_ip_addresses_for_interface(
+    #    interface: str,
+    # ):
+    #    addresses = netifaces.ifaddresses(interface)
+    #    if gvd:
+    #        ic(addresses)
+    #    try:
+    #        addresses = addresses[netifaces.AF_INET]
+    #    except KeyError:
+    #        return []
+    #    addresses = [ip["addr"] for ip in addresses]
+    #    ic(addresses)
+    #    return addresses
+
+    # def get_mac_for_interface(
+    #    interface: str,
+    # ):
+    #    mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
+    #    ic(mac)
+    #    mac = "".join(mac.split(":"))
+    #    mac = bytes.fromhex(mac)
+    #    ic(mac)
+    #    return mac
 
 
 def get_hostname() -> str:
