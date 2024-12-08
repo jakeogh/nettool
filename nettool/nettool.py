@@ -90,6 +90,14 @@ def get_network_ports():
     #    return mac
 
 
+def set_interface_link_up(interface: str):
+    sh.ip("link", "set", "up", interface)
+
+
+def set_interface_link_down(interface: str):
+    sh.ip("link", "set", "down", interface)
+
+
 def get_hostname() -> str:
     return socket.gethostname()
 
