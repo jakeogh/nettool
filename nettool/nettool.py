@@ -102,7 +102,7 @@ def get_hostname() -> str:
     return socket.gethostname()
 
 
-def alias_add(*, ip_with_subnet: str, device: str = "eth0"):
+def alias_add(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
     ip_command = sh.Command("ip")
     result = None
@@ -120,7 +120,7 @@ def alias_add(*, ip_with_subnet: str, device: str = "eth0"):
         raise e
 
 
-def alias_remove(*, ip_with_subnet: str, device: str = "eth0"):
+def alias_remove(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
     sh.ip("address", "del", ip_with_subnet, "dev", device)
 
@@ -163,19 +163,17 @@ def get_default_gateway_linux():
 
             return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
 
-
-if not Path("/bin/ip").exists():
-    try:
-        from scapy.all import get_windows_if_list
-    except ImportError:
-
-        def get_windows_if_list():
-            assert False
-
-else:
-
-    def get_windows_if_list():
-        assert False
+    # if not Path("/bin/ip").exists():
+    #    try:
+    #        from scapy.all import get_windows_if_list
+    #    except ImportError:
+    #
+    #        def get_windows_if_list():
+    #            assert False
+    # else:
+    #
+    #    def get_windows_if_list():
+    #        assert False
 
 
 def tcp_port_in_use(
@@ -207,16 +205,15 @@ def get_network_interfaces():
             pass
     return ports
 
-
-def get_name_for_windows_network_uuid(uuid):
-    if not uuid.startswith("{"):
-        return uuid  # return non win device, should tuple
-
-    assert uuid.endswith("}")
-    for item in get_windows_if_list():
-        if item["guid"] == uuid:
-            return (item["name"], item["description"])
-    raise ValueError(uuid)
+    # def get_name_for_windows_network_uuid(uuid):
+    #    if not uuid.startswith("{"):
+    #        return uuid  # return non win device, should tuple
+    #
+    #    assert uuid.endswith("}")
+    #    for item in get_windows_if_list():
+    #        if item["guid"] == uuid:
+    #            return (item["name"], item["description"])
+    #    raise ValueError(uuid)
 
 
 def get_ip_addresses_for_interface(
