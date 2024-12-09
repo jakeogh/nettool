@@ -45,9 +45,9 @@ class AliasExistsError(ValueError):
     pass
 
 
-def generate_network_port_help():
-    help_text = "Available network ports: "
-    ports = get_network_ports()
+def generate_network_interface_help():
+    help_text = "Available network interfaces: "
+    ports = get_network_interfaces()
     for port in ports:
         help_text += "\b\n" + str(port)
 
@@ -55,7 +55,7 @@ def generate_network_port_help():
     return help_text
 
 
-def get_network_ports():
+def get_network_interfaces():
     ports = netifaces.interfaces()
     skip_interfaces = ["lo", "dummy0", "teql0"]
     for interface in skip_interfaces:
@@ -64,30 +64,6 @@ def get_network_ports():
         except ValueError:
             pass
     return ports
-
-    # def get_ip_addresses_for_interface(
-    #    interface: str,
-    # ):
-    #    addresses = netifaces.ifaddresses(interface)
-    #    if gvd:
-    #        ic(addresses)
-    #    try:
-    #        addresses = addresses[netifaces.AF_INET]
-    #    except KeyError:
-    #        return []
-    #    addresses = [ip["addr"] for ip in addresses]
-    #    ic(addresses)
-    #    return addresses
-
-    # def get_mac_for_interface(
-    #    interface: str,
-    # ):
-    #    mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
-    #    ic(mac)
-    #    mac = "".join(mac.split(":"))
-    #    mac = bytes.fromhex(mac)
-    #    ic(mac)
-    #    return mac
 
 
 def set_interface_link_up(interface: str):
@@ -194,17 +170,6 @@ def tcp_port_in_use(
         ic(port, _result)
         return _result
 
-
-def get_network_interfaces():
-    ports = netifaces.interfaces()
-    skip_interfaces = ["lo", "dummy0", "teql0"]
-    for interface in skip_interfaces:
-        try:
-            ports.remove(interface)
-        except ValueError:
-            pass
-    return ports
-
     # def get_name_for_windows_network_uuid(uuid):
     #    if not uuid.startswith("{"):
     #        return uuid  # return non win device, should tuple
@@ -304,3 +269,28 @@ def download_file(
 #    data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
 #    print("received message: %s" % data)
 #    return data
+#
+#
+# def get_ip_addresses_for_interface(
+#    interface: str,
+# ):
+#    addresses = netifaces.ifaddresses(interface)
+#    if gvd:
+#        ic(addresses)
+#    try:
+#        addresses = addresses[netifaces.AF_INET]
+#    except KeyError:
+#        return []
+#    addresses = [ip["addr"] for ip in addresses]
+#    ic(addresses)
+#    return addresses
+
+# def get_mac_for_interface(
+#    interface: str,
+# ):
+#    mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
+#    ic(mac)
+#    mac = "".join(mac.split(":"))
+#    mac = bytes.fromhex(mac)
+#    ic(mac)
+#    return mac
