@@ -183,7 +183,7 @@ def tcp_port_in_use(
 
 def get_ip_addresses_for_interface(
     interface: str,
-):
+) -> list[str]:
     addresses = netifaces.ifaddresses(interface)
     ic(addresses)
     try:
