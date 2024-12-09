@@ -185,7 +185,7 @@ def get_ip_addresses_for_interface(
     interface: str,
 ) -> list[str]:
     addresses = netifaces.ifaddresses(interface)
-    ic(addresses)
+    # ic(addresses)
     try:
         addresses = addresses[netifaces.AF_INET]
     except KeyError:
@@ -202,7 +202,7 @@ def get_mac_for_interface(
     ic(mac)
     mac = "".join(mac.split(":"))
     mac = bytes.fromhex(mac)
-    ic(mac)
+    # ic(mac)
     return mac
 
 
