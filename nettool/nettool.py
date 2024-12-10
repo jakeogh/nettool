@@ -84,8 +84,9 @@ def interface_link_is_up(interface: str) -> bool:
 def interface_link_light_is_on(interface: str) -> bool:
     with open(f"/sys/class/net/{interface}/operstate", "r", encoding="utf8") as fh:
         _content = fh.read()
-        _result = int(_content, 16) & 0x1
-        return bool(_result)
+        if _content.strip() == "up":
+            return True
+    return False
 
 
 def get_hostname() -> str:
