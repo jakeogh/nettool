@@ -17,3 +17,4 @@ from .nettool import get_network_interfaces as get_network_interfaces
 from .nettool import generate_network_interface_help as generate_network_interface_help
 from .nettool import set_interface_link_up as set_interface_link_up
 from .nettool import set_interface_link_down as set_interface_link_down
+from .nettool import interface_link_is_up as interface_link_is_up
