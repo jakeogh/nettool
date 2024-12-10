@@ -18,3 +18,4 @@ from .nettool import generate_network_interface_help as generate_network_interfa
 from .nettool import set_interface_link_up as set_interface_link_up
 from .nettool import set_interface_link_down as set_interface_link_down
 from .nettool import interface_link_is_up as interface_link_is_up
+from .nettool import interface_link_light_is_on as interface_link_light_is_on
