@@ -55,23 +55,30 @@ def generate_network_interface_help():
     return help_text
 
 
-def get_network_interfaces():
-    ports = netifaces.interfaces()
+def get_network_interfaces() -> list[str]:
+    _interfaces = netifaces.interfaces()
     skip_interfaces = ["lo", "dummy0", "teql0"]
-    for interface in skip_interfaces:
+    for _ in skip_interfaces:
         try:
-            ports.remove(interface)
+            _interfaces.remove(_)
         except ValueError:
             pass
-    return ports
+    return _interfaces
 
 
-def set_interface_link_up(interface: str):
+def set_interface_link_up(interface: str) -> None:
     sh.ip("link", "set", "up", interface)
 
 
-def set_interface_link_down(interface: str):
+def set_interface_link_down(interface: str) -> None:
     sh.ip("link", "set", "down", interface)
+
+
+def interface_link_is_up(interface: str) -> bool:
+    with open(f"/sys/class/net/{interface}/flags", "r", encoding="utf8") as fh:
+        _content = fh.read()
+        _result = int(_content, 16) & 0x1
+        return bool(_result)
 
 
 def get_hostname() -> str:
