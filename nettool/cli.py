@@ -46,6 +46,8 @@ from nettool import get_default_gateway
 from nettool import get_ip_addresses_for_interface
 from nettool import get_mac_for_interface
 from nettool import internet_available
+from nettool import set_interface_link_down
+from nettool import set_interface_link_up
 from nettool import tcp_port_in_use
 
 signal(SIGPIPE, SIG_DFL)
@@ -269,3 +271,45 @@ def _alias_remove(
         gvd=gvd,
     )
     alias_remove(ip_with_subnet=ip_with_subnet, device=device)
+
+
+@cli.command("link-up")
+@click.argument("device", type=str, nargs=1)
+@click_add_options(click_global_options)
+@click.pass_context
+def _link_up(
+    ctx,
+    device: str,
+    verbose_inf: bool,
+    dict_output: bool,
+    verbose: bool = False,
+):
+    tty, verbose = tvicgvd(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
+    )
+    set_interface_link_up(device)
+
+
+@cli.command("link-down")
+@click.argument("device", type=str, nargs=1)
+@click_add_options(click_global_options)
+@click.pass_context
+def _link_down(
+    ctx,
+    device: str,
+    verbose_inf: bool,
+    dict_output: bool,
+    verbose: bool = False,
+):
+    tty, verbose = tvicgvd(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
+    )
+    set_interface_link_down(device)
