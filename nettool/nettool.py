@@ -102,6 +102,7 @@ def alias_add(*, ip_with_subnet: str, device: str):
     except sh.ErrorReturnCode_2 as e:
         icp(e)
         icp(e.args)
+        icp(e.args[0])
         icp(result)
         if hasattr(e, "args"):
             if "RTNETLINK answers: File exists" in e.args[0]:
