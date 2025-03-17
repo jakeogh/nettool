@@ -110,6 +110,9 @@ def alias_add(*, ip_with_subnet: str, device: str):
                 raise AliasExistsError(e.args[0])
         raise e
 
+    if not interface_link_is_up(device):
+        eprint(f"WARNING: interface {device} is not up")
+
 
 def alias_remove(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
