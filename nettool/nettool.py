@@ -95,24 +95,23 @@ def get_hostname() -> str:
 
 def alias_add(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
+    if not interface_link_is_up(device):
+        eprint(f"WARNING: interface {device} is not up")
     ip_command = sh.Command("ip")
     result = None
     try:
         result = ip_command("address", "add", ip_with_subnet, "dev", device)
     except sh.ErrorReturnCode_2 as e:
-        icp(e)
-        icp(e.args)
-        icp(e.args[0])
-        icp(result)
+        ic(e)
+        ic(e.args)
+        ic(e.args[0])
+        ic(result)
         if hasattr(e, "args"):
             if "RTNETLINK answers: File exists" in e.args[0]:
                 raise AliasExistsError(e.args[0])
             if "Error: ipv4: Address already assigned." in e.args[0]:
                 raise AliasExistsError(e.args[0])
         raise e
-
-    if not interface_link_is_up(device):
-        eprint(f"WARNING: interface {device} is not up")
 
 
 def alias_remove(*, ip_with_subnet: str, device: str):
