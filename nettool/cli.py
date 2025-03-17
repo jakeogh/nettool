@@ -34,10 +34,12 @@ from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tvicgvd
+from eprint import eprint
 from globalverbose import gvd
 from mptool import output
 from unmp import unmp
 
+from nettool import AliasExistsError
 from nettool import alias_add
 from nettool import alias_remove
 from nettool import get_default_gateway
@@ -240,7 +242,10 @@ def _alias_add(
         ic=ic,
         gvd=gvd,
     )
-    alias_add(ip_with_subnet=ip_with_subnet, device=device)
+    try:
+        alias_add(ip_with_subnet=ip_with_subnet, device=device)
+    except AliasExistsError:
+        eprint(f"ERROR: alias {ip_with_subnet} on {device} already exists.")
 
 
 @cli.command("delete-alias")
