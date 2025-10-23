@@ -1,30 +1,16 @@
 [build-system]
-requires = [
-    "setuptools>=61.0",
-]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools>=61.0", "tomlkit"]
+build-backend = "pep508_url_version_backend"
+backend-path = ["."]
 
 [project]
 name = "nettool"
-version = "0.0.1760910252"
+version = "0.0.1761212005"
 description = "Short explination of what it does _here_"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
 ]
-dependencies = [
-    "asserttool @ git+https://github.com/jakeogh/asserttool",
-    "click",
-    "click-auto-help @ git+https://github.com/jakeogh/click-auto-help",
-    "clicktool @ git+https://github.com/jakeogh/clicktool",
-    "eprint @ git+https://github.com/jakeogh/eprint",
-    "globalverbose @ git+https://github.com/jakeogh/globalverbose",
-    "mptool @ git+https://github.com/jakeogh/mptool",
-    "netifaces",
-    "requests @ git+https://github.com/jakeogh/requests",
-    "retry-on-exception @ git+https://github.com/jakeogh/retry-on-exception",
-    "sh",
-    "unmp @ git+https://github.com/jakeogh/unmp",
-]
+dependencies = []
 license = "ISC"
 requires-python = ">=3.11"
 
@@ -47,3 +33,19 @@ exclude = [
 nettool = [
     "py.typed",
 ]
+
+[tool.pep508-url-version-backend]
+dependencies-indexed = ["asserttool>=0.0.1761033057", "click-auto-help>=0.0.1761041641", "clicktool>=0.0.1761033403", "eprint>=0.0.1761027667", "globalverbose>=0.0.1761031290", "mptool>=0.0.1761032167", "netifaces", "requests", "retry-on-exception>=0.0.1761194539", "sh", "unmp>=0.0.1761031424"]
+dependencies-git = [
+	"asserttool @ git+https://github.com/jakeogh/asserttool", 
+	"click-auto-help @ git+https://github.com/jakeogh/click-auto-help", 
+	"clicktool @ git+https://github.com/jakeogh/clicktool", 
+	"eprint @ git+https://github.com/jakeogh/eprint", 
+	"globalverbose @ git+https://github.com/jakeogh/globalverbose", 
+	"mptool @ git+https://github.com/jakeogh/mptool", 
+	"netifaces", 
+	"requests", 
+	"retry-on-exception @ git+https://github.com/jakeogh/retry-on-exception", 
+	"sh", 
+	"unmp @ git+https://github.com/jakeogh/unmp"]
+index-urls = ["jakeogh.github.io", "pip-index"]

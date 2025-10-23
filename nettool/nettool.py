@@ -4,7 +4,9 @@
 
 from __future__ import annotations
 
+import os
 import random
+import re
 import socket
 import struct
 from pathlib import Path
@@ -290,3 +292,55 @@ def download_file(
 #    mac = bytes.fromhex(mac)
 #    ic(mac)
 #    return mac
+
+
+def check_interface_speed(interface="eth0"):
+    """
+    Get the link speed for a network interface and print a warning if < 1 Gbps.
+
+    Args:
+        interface: Network interface name (default: 'eth0')
+
+    Returns:
+        int: Link speed in Mbps, or None if unable to determine
+    """
+    speed_file = f"/sys/class/net/{interface}/speed"
+
+    try:
+        # Check if interface exists
+        if not os.path.exists(speed_file):
+            print(f"Error: Interface '{interface}' not found")
+            return None
+
+        # Read the speed (in Mbps)
+        with open(speed_file, "r") as f:
+            speed_mbps = int(f.read().strip())
+
+        # -1 typically means the interface is down or speed unknown
+        if speed_mbps == -1:
+            print(
+                f"Warning: Interface '{interface}' appears to be down or speed is unknown"
+            )
+            return None
+
+        # Check if speed is less than 1000 Mbps (1 Gbps)
+        if speed_mbps < 1000:
+            print(
+                f"⚠️  WARNING: Interface '{interface}' speed is {speed_mbps} Mbps (less than gigabit)"
+            )
+        else:
+            print(f"✓ Interface '{interface}' speed is {speed_mbps} Mbps")
+
+        return speed_mbps
+
+    except PermissionError:
+        print(
+            f"Error: Permission denied reading speed for '{interface}'. Try running with sudo."
+        )
+        return None
+    except ValueError:
+        print(f"Error: Unable to parse speed value for '{interface}'")
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
