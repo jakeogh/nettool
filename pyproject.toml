@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "nettool"
-version = "0.0.1761212005"
+version = "0.0.1761212022"
 description = "Short explination of what it does _here_"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
