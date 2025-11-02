@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "nettool"
-version = "1!0.0.1762049191"
+version = "1!0.0.1762049897"
 description = "Short explination of what it does _here_"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -35,7 +35,7 @@ nettool = [
 ]
 
 [tool.pep508-url-version-backend]
-dependencies-indexed = ["asserttool>=1!0.0.1761250315", "click-auto-help>=0.0.1761041641", "clicktool>=1!0.0.1761810015", "eprint>=1!0.0.1761259337", "globalverbose>=0.0.1761031290", "mptool>=1!0.0.1761897660", "netifaces", "requests", "retry-on-exception>=1!0.0.1761894423", "sh", "unmp>=1!0.0.1762049096"]
+dependencies-indexed = ["asserttool>=1!0.0.1761250315", "click-auto-help>=0.0.1761041641", "clicktool>=1!0.0.1761810015", "eprint>=1!0.0.1761259337", "globalverbose>=0.0.1761031290", "mptool>=1!0.0.1761897660", "netifaces", "requests", "retry-on-exception>=1!0.0.1761894423", "sh", "unmp>=1!0.0.1762049804"]
 dependencies-git = [
 	"asserttool @ git+https://github.com/jakeogh/asserttool", 
 	"click-auto-help @ git+https://github.com/jakeogh/click-auto-help", 
