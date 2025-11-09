@@ -50,7 +50,7 @@ def get_network_interfaces() -> list[str]:
 
 
 def set_interface_link_up(interface: str) -> None:
-    sh.ip(
+    hs.Command("ip")(
         "link",
         "set",
         "up",
@@ -59,7 +59,7 @@ def set_interface_link_up(interface: str) -> None:
 
 
 def set_interface_link_down(interface: str) -> None:
-    sh.ip(
+    hs.Command("ip")(
         "link",
         "set",
         "down",
@@ -90,7 +90,7 @@ def alias_add(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
     if not interface_link_is_up(device):
         eprint(f"WARNING: interface {device} is not up")
-    ip_command = sh.Command("ip")
+    ip_command = hs.Command("ip")
     result = None
     try:
         result = ip_command(
@@ -100,7 +100,7 @@ def alias_add(*, ip_with_subnet: str, device: str):
             "dev",
             device,
         )
-    except sh.ErrorReturnCode_2 as e:
+    except hs.ErrorReturnCode_2 as e:
         ic(e)
         ic(e.args)
         ic(e.args[0])
@@ -115,7 +115,7 @@ def alias_add(*, ip_with_subnet: str, device: str):
 
 def alias_remove(*, ip_with_subnet: str, device: str):
     assert "/" in ip_with_subnet
-    sh.ip(
+    hs.Command("ip")(
         "address",
         "del",
         ip_with_subnet,
@@ -180,7 +180,7 @@ def tcp_port_in_use(
 ):
     # eprint(port)
     # ic(port)
-    for line in sh.netstat("-a", "-n", "-l"):
+    for line in hs.Command("netstat")("-a", "-n", "-l"):
         if line.startswith("tcp"):
             if f":{port}" in line:
                 ic(line)
