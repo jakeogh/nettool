@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import random
-import re
 import socket
 import struct
 from pathlib import Path
@@ -14,9 +13,9 @@ from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
+import hs
 import netifaces
 import requests
-import sh
 from asserttool import ic
 from eprint import eprint
 from retry_on_exception import retry_on_exception
