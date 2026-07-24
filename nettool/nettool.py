@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf8 -*-
 
-
-from __future__ import annotations
-
-import os
 import random
 import socket
 import struct
@@ -22,109 +17,70 @@ from retry_on_exception import retry_on_exception
 
 signal(SIGPIPE, SIG_DFL)
 
+_ip = hs.Command("ip")
+
 
 class AliasExistsError(ValueError):
     pass
 
 
-def generate_network_interface_help():
-    help_text = "Available network interfaces: "
-    ports = get_network_interfaces()
-    for port in ports:
-        help_text += "\b\n" + str(port)
+def get_network_interfaces() -> list[str]:
+    skip_interfaces = {"lo", "dummy0", "teql0"}
+    return [_ for _ in netifaces.interfaces() if _ not in skip_interfaces]
 
-    help_text.replace("\n\n", "\n")
+
+def generate_network_interface_help() -> str:
+    # \b prevents click from rewrapping
+    help_text = "Available network interfaces: "
+    for port in get_network_interfaces():
+        help_text += "\b\n" + str(port)
     return help_text
 
 
-def get_network_interfaces() -> list[str]:
-    _interfaces = netifaces.interfaces()
-    skip_interfaces = ["lo", "dummy0", "teql0"]
-    for _ in skip_interfaces:
-        try:
-            _interfaces.remove(_)
-        except ValueError:
-            pass
-    return _interfaces
-
-
 def set_interface_link_up(interface: str) -> None:
-    hs.Command("ip")(
-        "link",
-        "set",
-        "up",
-        interface,
-    )
+    _ip("link", "set", "up", interface)
 
 
 def set_interface_link_down(interface: str) -> None:
-    hs.Command("ip")(
-        "link",
-        "set",
-        "down",
-        interface,
-    )
+    _ip("link", "set", "down", interface)
 
 
 def interface_link_is_up(interface: str) -> bool:
     with open(f"/sys/class/net/{interface}/flags", "r", encoding="utf8") as fh:
-        _content = fh.read()
-        _result = int(_content, 16) & 0x1
-        return bool(_result)
+        return bool(int(fh.read(), 16) & 0x1)
 
 
 def interface_link_light_is_on(interface: str) -> bool:
     with open(f"/sys/class/net/{interface}/operstate", "r", encoding="utf8") as fh:
-        _content = fh.read()
-        if _content.strip() == "up":
-            return True
-    return False
+        return fh.read().strip() == "up"
 
 
 def get_hostname() -> str:
     return socket.gethostname()
 
 
-def alias_add(*, ip_with_subnet: str, device: str):
+def alias_add(*, ip_with_subnet: str, device: str) -> None:
     assert "/" in ip_with_subnet
     if not interface_link_is_up(device):
         eprint(f"WARNING: interface {device} is not up")
-    ip_command = hs.Command("ip")
-    result = None
     try:
-        result = ip_command(
-            "address",
-            "add",
-            ip_with_subnet,
-            "dev",
-            device,
-        )
+        _ip("address", "add", ip_with_subnet, "dev", device)
     except hs.ErrorReturnCode_2 as e:
-        ic(e)
-        ic(e.args)
-        ic(e.args[0])
-        ic(result)
-        if hasattr(e, "args"):
-            if "RTNETLINK answers: File exists" in e.args[0]:
-                raise AliasExistsError(e.args[0])
-            if "Error: ipv4: Address already assigned." in e.args[0]:
-                raise AliasExistsError(e.args[0])
-        raise e
+        message = e.args[0] if e.args else ""
+        if "RTNETLINK answers: File exists" in message:
+            raise AliasExistsError(message) from e
+        if "Error: ipv4: Address already assigned." in message:
+            raise AliasExistsError(message) from e
+        raise
 
 
-def alias_remove(*, ip_with_subnet: str, device: str):
+def alias_remove(*, ip_with_subnet: str, device: str) -> None:
     assert "/" in ip_with_subnet
-    hs.Command("ip")(
-        "address",
-        "del",
-        ip_with_subnet,
-        "dev",
-        device,
-    )
+    _ip("address", "del", ip_with_subnet, "dev", device)
 
 
 # https://public-dns.info/nameservers.txt
-def get_public_dns_server():
+def get_public_dns_server() -> str:
     servers = [
         "8.8.8.8",  # goog
         "8.8.4.4",
@@ -134,7 +90,7 @@ def get_public_dns_server():
 
 
 # https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
-def internet_available():
+def internet_available() -> bool:
     host = get_public_dns_server()
     try:
         socket.setdefaulttimeout(3)
@@ -147,67 +103,36 @@ def internet_available():
 def get_default_gateway():
     gateways = netifaces.gateways()
     ic(gateways)
-
     return gateways
 
 
 # https://gist.github.com/ssokolow/1059982
-def get_default_gateway_linux():
+def get_default_gateway_linux() -> None | str:
     with open("/proc/net/route", encoding="utf8") as fh:
         for line in fh:
             fields = line.strip().split()
             if fields[1] != "00000000" or not int(fields[3], 16) & 2:
                 continue
-
             return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
-
-    # if not Path("/bin/ip").exists():
-    #    try:
-    #        from scapy.all import get_windows_if_list
-    #    except ImportError:
-    #
-    #        def get_windows_if_list():
-    #            assert False
-    # else:
-    #
-    #    def get_windows_if_list():
-    #        assert False
+    return None
 
 
-def tcp_port_in_use(
-    port: int,
-):
-    # eprint(port)
-    # ic(port)
+def tcp_port_in_use(port: int) -> bool:
+    assert isinstance(port, int)
     for line in hs.Command("netstat")("-a", "-n", "-l"):
         if line.startswith("tcp"):
             if f":{port}" in line:
                 ic(line)
                 return True
 
-    if not isinstance(port, int):
-        raise ValueError("port must be type int, not:", type(port), port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         _result = s.connect_ex(("localhost", port)) == 0
         ic(port, _result)
         return _result
 
-    # def get_name_for_windows_network_uuid(uuid):
-    #    if not uuid.startswith("{"):
-    #        return uuid  # return non win device, should tuple
-    #
-    #    assert uuid.endswith("}")
-    #    for item in get_windows_if_list():
-    #        if item["guid"] == uuid:
-    #            return (item["name"], item["description"])
-    #    raise ValueError(uuid)
 
-
-def get_ip_addresses_for_interface(
-    interface: str,
-) -> list[str]:
+def get_ip_addresses_for_interface(interface: str) -> list[str]:
     addresses = netifaces.ifaddresses(interface)
-    # ic(addresses)
     try:
         addresses = addresses[netifaces.AF_INET]
     except KeyError:
@@ -217,18 +142,12 @@ def get_ip_addresses_for_interface(
     return addresses
 
 
-def get_mac_for_interface(
-    interface: str,
-):
+def get_mac_for_interface(interface: str) -> bytes:
     mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
     ic(mac)
-    mac = "".join(mac.split(":"))
-    mac = bytes.fromhex(mac)
-    # ic(mac)
-    return mac
+    return bytes.fromhex("".join(mac.split(":")))
 
 
-# todo, add asc_sig options
 @retry_on_exception(exception=ConnectionError)
 def download_file(
     *,
@@ -237,25 +156,16 @@ def download_file(
     force: bool = False,
     proxy_dict: None | dict = None,
     progress: bool = False,
-):
+) -> Path | str:
     eprint("downloading:", url)
+    local_filename: None | Path = None
     if destination_dir:
         destination_dir = Path(destination_dir)
-        local_filename = destination_dir / Path(url.split("/")[-1])
-    else:
-        local_filename = None
+        local_filename = destination_dir / url.split("/")[-1]
+        if force:
+            local_filename.unlink(missing_ok=True)
 
     eprint(f"{destination_dir=}")
-    # if force:
-    #    os.unlink(local_filename)
-
-    # proxy_dict = {}
-    # if proxy:
-    #    verify(not proxy.startswith('http'))
-    #    verify(len(proxy.split(":")) == 2)
-    #    proxy_dict["http"] = proxy
-    #    proxy_dict["https"] = proxy
-
     ic(proxy_dict)
     r = requests.get(
         url,
@@ -263,13 +173,16 @@ def download_file(
         proxies=proxy_dict,
         timeout=60,
     )
-    byte_count = 0
+    r.raise_for_status()
+
     if local_filename:
+        byte_count = 0
         try:
             with open(local_filename, "bx") as fh:
                 for chunk in r.iter_content(chunk_size=1024 * 1024):
                     if chunk:
                         fh.write(chunk)
+                        byte_count += len(chunk)
                     if progress:
                         eprint("bytes:", byte_count)
         except FileExistsError:
@@ -282,64 +195,13 @@ def download_file(
     return text
 
 
-# def get_mac_for_interface(
-#    interface: str,
-# ):
-#    mac = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
-#    ic(mac)
-#    mac = "".join(mac.split(":"))
-#    mac = bytes.fromhex(mac)
-#    ic(mac)
-#    return mac
+def check_interface_speed(interface: str = "eth0") -> int:
+    with open(f"/sys/class/net/{interface}/speed", "r", encoding="utf8") as fh:
+        speed_mbps = int(fh.read().strip())
 
-
-def check_interface_speed(interface="eth0"):
-    """
-    Get the link speed for a network interface and print a warning if < 1 Gbps.
-
-    Args:
-        interface: Network interface name (default: 'eth0')
-
-    Returns:
-        int: Link speed in Mbps, or None if unable to determine
-    """
-    speed_file = f"/sys/class/net/{interface}/speed"
-
-    try:
-        # Check if interface exists
-        if not os.path.exists(speed_file):
-            print(f"Error: Interface '{interface}' not found")
-            return None
-
-        # Read the speed (in Mbps)
-        with open(speed_file, "r") as f:
-            speed_mbps = int(f.read().strip())
-
-        # -1 typically means the interface is down or speed unknown
-        if speed_mbps == -1:
-            print(
-                f"Warning: Interface '{interface}' appears to be down or speed is unknown"
-            )
-            return None
-
-        # Check if speed is less than 1000 Mbps (1 Gbps)
-        if speed_mbps < 1000:
-            print(
-                f"⚠️  WARNING: Interface '{interface}' speed is {speed_mbps} Mbps (less than gigabit)"
-            )
-        else:
-            print(f"✓ Interface '{interface}' speed is {speed_mbps} Mbps")
-
-        return speed_mbps
-
-    except PermissionError:
-        print(
-            f"Error: Permission denied reading speed for '{interface}'. Try running with sudo."
-        )
-        return None
-    except ValueError:
-        print(f"Error: Unable to parse speed value for '{interface}'")
-        return None
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
+    # -1: interface down or speed unknown
+    if speed_mbps == -1:
+        eprint(f"WARNING: interface {interface} is down or speed is unknown")
+    elif speed_mbps < 1000:
+        eprint(f"WARNING: interface {interface} speed is {speed_mbps} Mbps (less than gigabit)")
+    return speed_mbps
