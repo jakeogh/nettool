@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf8 -*-
 
-from __future__ import annotations
-
-from collections.abc import Sequence
+import sys
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
 import click
-import sh
 from asserttool import ic
 from asserttool import icp
 from click_auto_help import AHGroup
@@ -34,14 +30,12 @@ from nettool import tcp_port_in_use
 
 signal(SIGPIPE, SIG_DFL)
 
-sh.mv = None
-
 
 @click.group(no_args_is_help=True, cls=AHGroup)
 @click_add_options(click_global_options)
 @click.pass_context
 def cli(
-    ctx,
+    ctx: click.Context,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
@@ -53,8 +47,6 @@ def cli(
         ic=ic,
         gvd=gvd,
     )
-    if not verbose:
-        ic.disable()
 
 
 @cli.command("default-gw")
@@ -62,13 +54,12 @@ def cli(
 @click_add_options(click_global_options)
 @click.pass_context
 def _default_gw(
-    ctx,
+    ctx: click.Context,
     keys: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
-    ctx.ensure_object(dict)
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -77,17 +68,7 @@ def _default_gw(
         gvd=gvd,
     )
 
-    iterator: Sequence[dict | str] = unmp(
-        valid_types=[
-            dict,
-            str,
-        ],
-    )
-
-    index = 0
-    for index, _mpobject in enumerate(iterator):
-        # this check could be moved to output() but then we cant exit on error now
-
+    for _mpobject in unmp(valid_types=(dict, str)):
         default_gw = get_default_gateway()
         output(
             default_gw,
@@ -101,12 +82,11 @@ def _default_gw(
 @click_add_options(click_global_options)
 @click.pass_context
 def _info(
-    ctx,
+    ctx: click.Context,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
-    ctx.ensure_object(dict)
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -115,21 +95,10 @@ def _info(
         gvd=gvd,
     )
 
-    iterator: Sequence[dict | str] = unmp(
-        valid_types=[
-            dict,
-            str,
-        ],
-    )
-
-    index = 0
-    for index, _mpobject in enumerate(iterator):
+    for index, _mpobject in enumerate(unmp(valid_types=(dict, str))):
         ic(index, _mpobject)
-        interface: str = ""
         if isinstance(_mpobject, dict):
-            for _k, _v in _mpobject.items():
-                interface = _v
-                break
+            _k, interface = next(iter(_mpobject.items()))
         else:
             interface = _mpobject
             _k = interface
@@ -157,12 +126,12 @@ def _info(
 @click_add_options(click_global_options)
 @click.pass_context
 def _tcp_port_in_use(
-    ctx,
+    ctx: click.Context,
     port: int,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -179,11 +148,11 @@ def _tcp_port_in_use(
 @click_add_options(click_global_options)
 @click.pass_context
 def _internet_available(
-    ctx,
+    ctx: click.Context,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -196,29 +165,19 @@ def _internet_available(
     icp(_result)
 
 
-# def alias_add(ip_with_subnet: str, device: str = "eth0"):
-#    assert "/" in ip_with_subnet
-#    sh.ip("address", "add", ip_with_subnet, "dev", device)
-#
-#
-# def alias_remove(ip_with_subnet: str, device: str = "eth0"):
-#    assert "/" in ip_with_subnet
-#    sh.ip("address", "del", ip_with_subnet, "dev", device)
-
-
 @cli.command("add-alias")
 @click.argument("ip_with_subnet", type=str, nargs=1)
 @click.argument("device", type=str, nargs=1)
 @click_add_options(click_global_options)
 @click.pass_context
 def _alias_add(
-    ctx,
+    ctx: click.Context,
     ip_with_subnet: str,
     device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -230,6 +189,7 @@ def _alias_add(
         alias_add(ip_with_subnet=ip_with_subnet, device=device)
     except AliasExistsError:
         eprint(f"ERROR: alias {ip_with_subnet} on {device} already exists.")
+        sys.exit(1)
 
 
 @cli.command("delete-alias")
@@ -238,13 +198,13 @@ def _alias_add(
 @click_add_options(click_global_options)
 @click.pass_context
 def _alias_remove(
-    ctx,
+    ctx: click.Context,
     ip_with_subnet: str,
     device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -260,12 +220,12 @@ def _alias_remove(
 @click_add_options(click_global_options)
 @click.pass_context
 def _link_up(
-    ctx,
+    ctx: click.Context,
     device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
@@ -281,12 +241,12 @@ def _link_up(
 @click_add_options(click_global_options)
 @click.pass_context
 def _link_down(
-    ctx,
+    ctx: click.Context,
     device: str,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
-):
+) -> None:
     tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
