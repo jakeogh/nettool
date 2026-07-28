@@ -3,6 +3,8 @@
 import random
 import socket
 import struct
+import sys
+import time
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
@@ -148,6 +150,23 @@ def get_mac_for_interface(interface: str) -> bytes:
     return bytes.fromhex("".join(mac.split(":")))
 
 
+_MIB = 1024 * 1024
+
+
+def _write_progress(*, byte_count: int, total: int, started: float) -> None:
+    elapsed = time.monotonic() - started
+    rate = byte_count / elapsed / _MIB if elapsed > 0 else 0
+    if total:
+        line = (
+            f"{byte_count / _MIB:.0f}/{total / _MIB:.0f} MiB "
+            f"({100 * byte_count / total:.1f}%) {rate:.1f} MiB/s"
+        )
+    else:
+        line = f"{byte_count / _MIB:.0f} MiB {rate:.1f} MiB/s"
+    sys.stderr.write("\r" + line.ljust(48))
+    sys.stderr.flush()
+
+
 @retry_on_exception(exception=ConnectionError)
 def download_file(
     *,
@@ -176,15 +195,24 @@ def download_file(
     r.raise_for_status()
 
     if local_filename:
+        total = int(r.headers.get("content-length", 0))
         byte_count = 0
+        started = time.monotonic()
         try:
             with open(local_filename, "bx") as fh:
                 for chunk in r.iter_content(chunk_size=1024 * 1024):
                     if chunk:
                         fh.write(chunk)
                         byte_count += len(chunk)
-                    if progress:
-                        eprint("bytes:", byte_count)
+                        if progress:
+                            _write_progress(
+                                byte_count=byte_count,
+                                total=total,
+                                started=started,
+                            )
+            if progress:
+                sys.stderr.write("\n")
+                sys.stderr.flush()
         except FileExistsError:
             eprint("skipping download, file exists:", local_filename.as_posix())
         r.close()
