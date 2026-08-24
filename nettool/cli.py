@@ -11,11 +11,8 @@ from asserttool import icp
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tvicgvd
+from clicktool import tvic
 from eprint import eprint
-from globalverbose import gvd
-from mptool import output
-from unmp import unmp
 
 from nettool import AliasExistsError
 from nettool import alias_add
@@ -40,85 +37,58 @@ def cli(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
 
 @cli.command("default-gw")
-@click.argument("keys", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
 def _default_gw(
     ctx: click.Context,
-    keys: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
-    for _mpobject in unmp(valid_types=(dict, str)):
-        default_gw = get_default_gateway()
-        output(
-            default_gw,
-            reason=_mpobject,
-            tty=tty,
-            dict_output=dict_output,
-        )
+    default_gw = get_default_gateway()
+    print({None: default_gw} if dict_output else default_gw, flush=True)
 
 
 @cli.command("info")
+@click.argument("interfaces", type=str, nargs=-1, required=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def _info(
     ctx: click.Context,
+    interfaces: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
-    for index, _mpobject in enumerate(unmp(valid_types=(dict, str))):
-        ic(index, _mpobject)
-        if isinstance(_mpobject, dict):
-            _k, interface = next(iter(_mpobject.items()))
-        else:
-            interface = _mpobject
-            _k = interface
-
-        output(
-            get_ip_addresses_for_interface(
-                interface=interface,
-            ),
-            reason=_k,
-            tty=tty,
-            dict_output=dict_output,
-        )
-        output(
-            get_mac_for_interface(
-                interface=interface,
-            ),
-            reason=_k,
-            tty=tty,
-            dict_output=dict_output,
-        )
+    for index, interface in enumerate(interfaces):
+        ic(index, interface)
+        addresses = get_ip_addresses_for_interface(interface=interface)
+        print({interface: addresses} if dict_output else addresses, flush=True)
+        mac = get_mac_for_interface(interface=interface)
+        print({interface: mac} if dict_output else mac, flush=True)
 
 
 @cli.command("tcp-port-in-use")
@@ -132,12 +102,11 @@ def _tcp_port_in_use(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     _result = tcp_port_in_use(port)
@@ -153,12 +122,11 @@ def _internet_available(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     _result = internet_available()
@@ -178,12 +146,11 @@ def _alias_add(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
     try:
         alias_add(ip_with_subnet=ip_with_subnet, device=device)
@@ -205,12 +172,11 @@ def _alias_remove(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
     alias_remove(ip_with_subnet=ip_with_subnet, device=device)
 
@@ -226,12 +192,11 @@ def _link_up(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
     set_interface_link_up(device)
 
@@ -247,11 +212,10 @@ def _link_down(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
     set_interface_link_down(device)
