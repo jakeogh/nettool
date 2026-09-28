@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nettool"
-version = "1!0.0.1788850607"
+version = "1!0.0.1790565674"
 description = "Short explination of what it does _here_"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -15,9 +15,9 @@ dependencies = [
     "sh",
     "asserttool @ git+https://github.com/jakeogh/asserttool@4bd23a06c2161e488415acde89c29537e6720cc1",
     "click-auto-help @ git+https://github.com/jakeogh/click-auto-help@0308bf2e30095ce9c87a083e1f013731827e60aa",
-    "clicktool @ git+https://github.com/jakeogh/clicktool@4bc98af7590652693aef664af7485acde40688c2",
+    "clicktool @ git+https://github.com/jakeogh/clicktool@999e9c509115b90ab0149b0b611c0ca90a7baa85",
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
-    "retry-on-exception @ git+https://github.com/jakeogh/retry-on-exception@872a0c9e578e207ac1340987fb551381d17030db",
+    "retry-on-exception @ git+https://github.com/jakeogh/retry-on-exception@0d002f4b72955fdb23c1cd227d8c5022b65f7d71",
 ]
 license = "ISC"
 requires-python = ">=3.11"
